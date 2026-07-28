@@ -1,111 +1,73 @@
-import React, { useState, useEffect } from "react";
-import { addItem, fetchItems, updateItem, deleteItem, fetchSortedItems, fetchFilteredItems } from "./firestore-functions";
+import { useEffect, useState } from 'react';
+import { fetchItems, updateItem } from './firestore-functions';
 
-const App = () => {
-  const [items, setItems] = useState([]);
-  const [newItem, setNewItem] = useState("");
-  const [editItem, setEditItem] = useState(null);
-  const [sortField, setSortField] = useState("name");
-  const [filterField, setFilterField] = useState("name");
-  const [filterValue, setFilterValue] = useState("");
+function App() {
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadItems().then(() => console.log("items loaded successfully"));
+    async function loadData() {
+      const data = await fetchItems();
+      setServices(data);
+      setLoading(false);
+    }
+    loadData();
   }, []);
 
-  const loadItems = async () => {
-    const fetchedItems = await fetchItems();
-    setItems(fetchedItems);
+  const handleStatusChange = async (id, newStatus) => {
+    await updateItem(id, { visitStatus: newStatus });
+    setServices(prev => 
+      prev.map(item => item.id === id ? { ...item, visitStatus: newStatus } : item)
+    );
   };
 
-  const handleAdd = async () => {
-    if (newItem.trim()) {
-      await addItem({ name: newItem });
-      setNewItem("");
-      await loadItems();
-    }
-  };
-
-  const handleUpdate = async (id, name) => {
-    setEditItem(null);
-    await updateItem(id, { name });
-    await loadItems();
-  };
-
-  const handleDelete = async (id) => {
-    await deleteItem(id);
-    await loadItems();
-  };
-
-  const handleSort = async () => {
-    const sortedItems = await fetchSortedItems(sortField);
-    setItems(sortedItems);
-  };
-
-  const handleFilter = async () => {
-    const filteredItems = await fetchFilteredItems(filterField, filterValue);
-    setItems(filteredItems);
-  };
+  if (loading) return <div style={{ padding: '20px' }}>Loading provider schedule...</div>;
 
   return (
-      <div>
-        <h1>Items Manager</h1>
+    <div style={{ maxWidth: '650px', margin: '0 auto', padding: '20px', fontFamily: 'sans-serif' }}>
+      <h1>Pet Care Provider Daily Schedule</h1>
+      {services.length === 0 ? (
+        <p>No active bookings found.</p>
+      ) : (
+        services.map((item) => (
+          <div 
+            key={item.id} 
+            style={{ 
+              border: '1px solid #e5e7eb', 
+              borderRadius: '8px', 
+              padding: '16px', 
+              marginBottom: '16px',
+              backgroundColor: '#fff',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+            }}
+          >
+            <h2 style={{ marginTop: 0, color: '#111827' }}>{item.serviceType} — {item.petName} ({item.petType})</h2>
+            <p><strong>Customer:</strong> {item.customerName}</p>
+            <p><strong>Time Slot:</strong> {item.timeSlot} ({item.frequency})</p>
+            <p><strong>Payment Status:</strong> <span style={{ color: 'green', fontWeight: 'bold' }}>{item.status}</span></p>
+            
+            <p>
+              <strong>Visit Status:</strong> 
+              <select 
+                value={item.visitStatus} 
+                onChange={(e) => handleStatusChange(item.id, e.target.value)}
+                style={{ marginLeft: '10px', padding: '4px 8px', borderRadius: '4px' }}
+              >
+                <option value="Pending">Pending</option>
+                <option value="Arrived">Arrived</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Completed">Completed</option>
+              </select>
+            </p>
 
-        {/* Add Item */}
-        <div>
-          <input
-              type="text"
-              value={newItem}
-              onChange={(e) => setNewItem(e.target.value)}
-              placeholder="Add new item"
-          />
-          <button onClick={handleAdd}>Add</button>
-        </div>
-
-        {/* Items List */}
-        <ul>
-          {items.map((item) => (
-              <li key={item.id}>
-                {editItem === item.id ? (
-                    <input
-                        type="text"
-                        defaultValue={item.name}
-                        onBlur={(e) => handleUpdate(item.id, e.target.value)}
-                    />
-                ) : (
-                    <span>{item.name}</span>
-                )}
-                <button onClick={() => setEditItem(item.id)}>Edit</button>
-                <button onClick={() => handleDelete(item.id)}>Delete</button>
-              </li>
-          ))}
-        </ul>
-
-        {/* Sort Items */}
-        <div>
-          <select value={sortField} onChange={(e) => setSortField(e.target.value)}>
-            <option value="name">Name</option>
-            <option value="date">Date</option>
-          </select>
-          <button onClick={handleSort}>Sort</button>
-        </div>
-
-        {/* Filter Items */}
-        <div>
-          <input
-              type="text"
-              value={filterValue}
-              onChange={(e) => setFilterValue(e.target.value)}
-              placeholder="Filter value"
-          />
-          <select value={filterField} onChange={(e) => setFilterField(e.target.value)}>
-            <option value="name">Name</option>
-            <option value="category">Category</option>
-          </select>
-          <button onClick={handleFilter}>Filter</button>
-        </div>
-      </div>
+            <p style={{ background: '#f3f4f6', padding: '10px', borderRadius: '6px', fontSize: '14px' }}>
+              <strong>Notes:</strong> {item.notes}
+            </p>
+          </div>
+        ))
+      )}
+    </div>
   );
-};
+}
 
 export default App;

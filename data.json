@@ -1,0 +1,42 @@
+[
+  {
+    "id": "pet-service-101",
+    "customerName": "Sarah Jenkins",
+    "petName": "Barnaby",
+    "petType": "Dog (Golden Retriever)",
+    "serviceType": "Dog Walking",
+    "frequency": "Daily",
+    "timeSlot": "10:00 AM",
+    "status": "Paid",
+    "visitStatus": "In Progress",
+    "providerName": "Alex Rivera",
+    "notes": "Friendly, needs harness put on before walk."
+  },
+  {
+    "id": "pet-service-102",
+    "customerName": "David Chen",
+    "petName": "Milo",
+    "petType": "Cat (Tabby)",
+    "serviceType": "Feeding Visit",
+    "frequency": "Bi-weekly",
+    "timeSlot": "02:00 PM",
+    "status": "Paid",
+    "visitStatus": "Arrived",
+    "providerName": "Alex Rivera",
+    "notes": "Wet food in top cabinet. Make sure fresh water is filled."
+  },
+  {
+    "id": "pet-service-103",
+    "customerName": "Emily Watson",
+    "petName": "Luna",
+    "petType": "Dog (Poodle)",
+    "serviceType": "Grooming",
+    "frequency": "Monthly",
+    "timeSlot": "04:30 PM",
+    "status": "Paid",
+    "visitStatus": "Completed",
+    "providerName": "Sam Miller",
+    "notes": "Sensitive skin shampoo provided in bathroom."
+  }
+]
+   
